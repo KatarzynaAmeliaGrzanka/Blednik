@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include <QGraphicsView>
 #include "map.h"
+#include "traffic_lights.h"
+#include "traffic_lights_controller.h"
 #include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -51,7 +53,38 @@ MainWindow::MainWindow(QWidget *parent)
             scene->addRect(road, y, 3, 20, QPen(Qt::NoPen), QBrush(Qt::white));
         }
     }
+
+
+    /*for (auto point : map.getCrossroads()) {
+        traffic_lights* light = new traffic_lights();
+        light->setPos(point.x() + 20, point.y()-20);  // np. na skrzyżowaniu
+        scene->addItem(light);
+        light->setPos(point.x() - 20, point.y()+20);  // np. na skrzyżowaniu
+        scene->addItem(light);
+    }*/
+
+    int counter = 0;
+    for (auto point : map.getCrossroads()) {
+        if (counter % 3 != 0){
+        traffic_lights* light1 = new traffic_lights();
+        traffic_lights* light2 = new traffic_lights();
+        traffic_lights* light3 = new traffic_lights();
+        traffic_lights* light4 = new traffic_lights();
+
+        light1->setPos(point.x() + 50, point.y()-70);  scene->addItem(light1);
+        light2->setPos(point.x() + 50, point.y()+50);  scene->addItem(light2);
+        light3->setPos(point.x() - 80, point.y()-70);  scene->addItem(light3);
+        light4->setPos(point.x() - 80, point.y()+50);  scene->addItem(light4);
+
+        auto controller = new traffic_lights_controller(this);
+        controller->addPairOfLight(light1, light4); // pion
+        controller->addPairOfLight(light2, light3); // poziom
+        }
+        counter++;
 }
+}
+
+
 
 MainWindow::~MainWindow()
 {
