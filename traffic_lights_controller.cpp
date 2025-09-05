@@ -1,4 +1,5 @@
 #include "traffic_lights_controller.h"
+#include "qdebug.h"
 #include <QRandomGenerator>
 
 traffic_lights_controller::traffic_lights_controller(QObject *parent)
@@ -9,25 +10,54 @@ traffic_lights_controller::traffic_lights_controller(QObject *parent)
     timer.start(interval);
 }
 
-void traffic_lights_controller::addPairOfLight(traffic_lights *a, traffic_lights *b)
+void traffic_lights_controller::addIntersection(traffic_lights* north, traffic_lights* south,traffic_lights* east, traffic_lights* west)
 {
-    if (pairA.empty())
+    /*if (pairA.empty())
             pairA.push_back({a, b}); // pierwsza para = A
         else
-        pairB.push_back({a, b}); // druga para = B
+        pairB.push_back({a, b}); // druga para = B*/
+    intersections.push_back({north, south, east, west});
+    north->setState(state);
+    south->setState(state);
+    east->setState(!state);
+    west->setState(!state);
+
+
 }
+
+traffic_lights *traffic_lights_controller::getWest()
+{
+    for (auto &i : intersections){
+        qDebug() << "Droga" ;
+        return i.north;
+   }
+
+}
+
+QPointF traffic_lights_controller::getPosition()
+{
+    return position;
+}
+
+void traffic_lights_controller::setPosition(qreal x, qreal y)
+{
+    position = QPointF(x,y);
+}
+
+
 
 void traffic_lights_controller::toggle()
 {
     state = !state;
 
-    for (auto &pair : pairA){
-        pair.first->setState(state);
-        pair.second->setState(state);
+    for (auto &i : intersections){
+        i.north->setState(state);
+        i.south->setState(state);
+        i.east->setState(!state);
+        i.west->setState(!state);
     }
 
-    for (auto &pair : pairB){
-        pair.first->setState(!state);
-        pair.second->setState(!state);
-    }
+    emit lightChanged(state, position);
+
+    timer.start(QRandomGenerator::global()->bounded(3000, 5001));
 }

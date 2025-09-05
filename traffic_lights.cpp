@@ -17,5 +17,10 @@ void traffic_lights::setState(bool green) {
     if (m_isGreen)
             setBrush(QBrush(Qt::green));
         else
-            setBrush(QBrush(Qt::red));
+        setBrush(QBrush(Qt::red));
+}
+
+bool traffic_lights::getState()
+{
+    return m_isGreen;
 }

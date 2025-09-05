@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include <QGraphicsView>
+#include "car.h"
 #include "map.h"
 #include "traffic_lights.h"
 #include "traffic_lights_controller.h"
@@ -15,14 +16,14 @@ MainWindow::MainWindow(QWidget *parent)
     view->setRenderHint(QPainter::Antialiasing);
     setCentralWidget(view);
 
-    map map(1200, 940);
+    map map(1200, 1200);
 
     resize(map.getMapWidth(),map.getMapHeight());
     scene->setSceneRect(0,0,map.getMapWidth(),map.getMapHeight());
 
     map.setRoadWidth(80);
     map.setHorizontalRoad(300);
-    map.setHorizontalRoad(600);
+    map.setHorizontalRoad(700);
     map.setVerticalRoad(200);
     map.setVerticalRoad(600);
     map.setVerticalRoad(1000);
@@ -63,6 +64,9 @@ MainWindow::MainWindow(QWidget *parent)
         scene->addItem(light);
     }*/
 
+    std::vector<traffic_lights_controller*> lights_controllers;
+
+
     int counter = 0;
     for (auto point : map.getCrossroads()) {
         if (counter % 3 != 0){
@@ -77,11 +81,29 @@ MainWindow::MainWindow(QWidget *parent)
         light4->setPos(point.x() - 80, point.y()+50);  scene->addItem(light4);
 
         auto controller = new traffic_lights_controller(this);
-        controller->addPairOfLight(light1, light4); // pion
-        controller->addPairOfLight(light2, light3); // poziom
+        controller->addIntersection(light1, light4, light2, light3); // pion
+        lights_controllers.push_back(controller);
+        controller->setPosition(point.x(), point.y());
         }
         counter++;
-}
+    }
+
+
+    int a = 0;
+
+    car* car1 = new car(lights_controllers);
+    car1->setPos(0, 320);
+    scene->addItem(car1);
+    car1->addControllers(lights_controllers);
+
+
+
+
+    QTimer* anim = new QTimer(this);
+    connect(anim, &QTimer::timeout, this, [=](){
+        car1->move();
+    });
+    anim->start(30);
 }
 
 

@@ -12,6 +12,7 @@ public:
     explicit traffic_lights(QGraphicsItem* parent = nullptr);
     bool isGreen() const {return m_isGreen; };
     void setState(bool green);
+    bool getState();
 
 private:
     bool m_isGreen;
