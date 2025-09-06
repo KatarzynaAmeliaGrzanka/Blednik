@@ -10,6 +10,7 @@ CONFIG += c++17
 
 SOURCES += \
     car.cpp \
+    intersection.cpp \
     main.cpp \
     mainwindow.cpp \
     map.cpp \
@@ -19,6 +20,7 @@ SOURCES += \
 
 HEADERS += \
     car.h \
+    intersection.h \
     mainwindow.h \
     map.h \
     movingobject.h \

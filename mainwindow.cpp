@@ -37,7 +37,7 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
     for (auto point : map.getCrossroads()) {
-        scene->addEllipse(point.x()-5, point.y()-5, 10, 10, QPen(Qt::red), QBrush(Qt::red));
+        scene->addEllipse(point.x()-2, point.y()-5, 10, 10, QPen(Qt::red), QBrush(Qt::red));
     }
 
 
@@ -65,45 +65,56 @@ MainWindow::MainWindow(QWidget *parent)
     }*/
 
     std::vector<traffic_lights_controller*> lights_controllers;
-
+    std::vector<intersection*> intersections_on_map;
 
     int counter = 0;
     for (auto point : map.getCrossroads()) {
+        intersection* curr_intersection = new intersection(point);
         if (counter % 3 != 0){
-        traffic_lights* light1 = new traffic_lights();
-        traffic_lights* light2 = new traffic_lights();
-        traffic_lights* light3 = new traffic_lights();
-        traffic_lights* light4 = new traffic_lights();
+            traffic_lights* light1 = new traffic_lights();
+            traffic_lights* light2 = new traffic_lights();
+            traffic_lights* light3 = new traffic_lights();
+            traffic_lights* light4 = new traffic_lights();
 
-        light1->setPos(point.x() + 50, point.y()-70);  scene->addItem(light1);
-        light2->setPos(point.x() + 50, point.y()+50);  scene->addItem(light2);
-        light3->setPos(point.x() - 80, point.y()-70);  scene->addItem(light3);
-        light4->setPos(point.x() - 80, point.y()+50);  scene->addItem(light4);
+            light1->setPos(point.x() + 50, point.y()-70);  scene->addItem(light1);
+            light2->setPos(point.x() + 50, point.y()+50);  scene->addItem(light2);
+            light3->setPos(point.x() - 80, point.y()-70);  scene->addItem(light3);
+            light4->setPos(point.x() - 80, point.y()+50);  scene->addItem(light4);
 
-        auto controller = new traffic_lights_controller(this);
-        controller->addIntersection(light1, light4, light2, light3); // pion
-        lights_controllers.push_back(controller);
-        controller->setPosition(point.x(), point.y());
+            auto controller = new traffic_lights_controller(this);
+            controller->addIntersection(light1, light4, light2, light3); // pion
+            lights_controllers.push_back(controller);
+            controller->setPosition(point.x()-5, point.y()-5);
+
+
+            curr_intersection->addController(controller);
+            //scene->addEllipse(curr_intersection->getPosition().x(),curr_intersection->getPosition().y(), 10, 10, QPen(Qt::blue), QBrush(Qt::blue));
         }
+        intersections_on_map.push_back(curr_intersection);
         counter++;
     }
 
 
-    int a = 0;
 
-    car* car1 = new car(lights_controllers);
+    car* car1 = new car(car::RIGHT, intersections_on_map);
     car1->setPos(0, 320);
     scene->addItem(car1);
     car1->addControllers(lights_controllers);
 
-
-
-
+    /*car* car2 = new car(car::DOWN, intersections_on_map);
+    car2->setPos(980, 1200);
+    scene->addItem(car2);
+    car1->addControllers(lights_controllers);
+*/
     QTimer* anim = new QTimer(this);
     connect(anim, &QTimer::timeout, this, [=](){
         car1->move();
+     //   car2->move();
+
     });
     anim->start(30);
+
+
 }
 
 
