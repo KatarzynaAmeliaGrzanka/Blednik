@@ -11,13 +11,14 @@ class MovingObject :  public QGraphicsRectItem {
 public:
     MovingObject();
 
-    enum Direction{ UP, DOWN, LEFT, RIGHT, RIGHT_DOWN};
+    enum Direction{ UP, DOWN, LEFT, RIGHT};
 
     void setSpeed(qreal s);
     qreal getDefaultSpeed() {return default_speed;}
 
     void setDirection(Direction d) {direction = d;};
     Direction getDirection() const {return direction; }
+    qreal getSpeed() const {return speed;}
 
 public slots:
     void move();

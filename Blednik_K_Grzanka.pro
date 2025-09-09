@@ -10,20 +10,28 @@ CONFIG += c++17
 
 SOURCES += \
     car.cpp \
+    carstate.cpp \
     intersection.cpp \
     main.cpp \
     mainwindow.cpp \
     map.cpp \
     movingobject.cpp \
+    pedestrian.cpp \
+    pedestrian_crossing.cpp \
+    startwindow.cpp \
     traffic_lights.cpp \
     traffic_lights_controller.cpp
 
 HEADERS += \
     car.h \
+    carstate.h \
     intersection.h \
     mainwindow.h \
     map.h \
     movingobject.h \
+    pedestrian.h \
+    pedestrian_crossing.h \
+    startwindow.h \
     traffic_lights.h \
     traffic_lights_controller.h
 

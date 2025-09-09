@@ -13,7 +13,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
+    MainWindow(int nbOfCars = 0, int nbOfPedestrians = 0, QWidget *parent = nullptr);
     ~MainWindow();
 
 private:
