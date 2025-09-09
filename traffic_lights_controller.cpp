@@ -25,14 +25,7 @@ void traffic_lights_controller::addIntersection(traffic_lights* north, traffic_l
 
 }
 
-traffic_lights *traffic_lights_controller::getWest()
-{
-    for (auto &i : intersections){
-        qDebug() << "Droga" ;
-        return i.north;
-   }
 
-}
 
 QPointF traffic_lights_controller::getPosition()
 {

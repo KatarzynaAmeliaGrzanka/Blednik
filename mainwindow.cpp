@@ -77,7 +77,7 @@ MainWindow::MainWindow(int nbOfCars, int nbOfPedestrians,  QWidget *parent)
 
         }
         start_points_cars.push_back(QPointF(road - 25, 5));
-        start_points_pedestrians.push_back(QPointF(road - 65, 5));
+        start_points_pedestrians.push_back(QPointF(road - 50, 5));
 
     }
 
@@ -109,12 +109,12 @@ MainWindow::MainWindow(int nbOfCars, int nbOfPedestrians,  QWidget *parent)
 
 
     for (int i = 0; i < nbOfCars && i < start_points_cars.size(); i++) {
-        car::Direction dir;
+        Direction::direction dir;
 
         if (i < 2) {
-            dir = car::RIGHT;
+            dir = Direction::RIGHT;
         } else {
-            dir = car::DOWN;
+            dir = Direction::DOWN;
         }
 
         car* newCar = new car(dir, intersections_on_map, crossings);
@@ -126,12 +126,12 @@ MainWindow::MainWindow(int nbOfCars, int nbOfPedestrians,  QWidget *parent)
 
 
     for (int i = 0; i < nbOfPedestrians && i < start_points_pedestrians.size(); i++) {
-        pedestrian::Direction dir;
+        Direction::direction  dir;
 
         if (i < 2) {
-            dir = pedestrian::RIGHT;
+            dir = Direction::RIGHT;
         } else {
-            dir = pedestrian::DOWN;
+            dir = Direction::DOWN;
         }
 
         pedestrian* newPedestrian = new pedestrian(dir, intersections_on_map, crossings, start_points_cars);

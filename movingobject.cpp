@@ -10,12 +10,5 @@ void MovingObject::setSpeed(qreal s)
     speed = s;
 }
 
-void MovingObject::move()
-{
-    QPointF p = pos();
-
-
-
-}
 
 

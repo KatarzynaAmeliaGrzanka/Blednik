@@ -10,7 +10,6 @@ CONFIG += c++17
 
 SOURCES += \
     car.cpp \
-    carstate.cpp \
     intersection.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -23,8 +22,8 @@ SOURCES += \
     traffic_lights_controller.cpp
 
 HEADERS += \
+    Direction.h \
     car.h \
-    carstate.h \
     intersection.h \
     mainwindow.h \
     map.h \

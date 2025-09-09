@@ -1,23 +1,30 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "traffic_lights_controller.h"
 #include <QMainWindow>
 #include <QGraphicsScene>
 #include <QList>
 
 
-
+/**
+ * @brief The MainWindow class
+ * Klasa głownego okna aplikacji.
+ */
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
+    /**
+     * @brief MainWindow Konstruktor
+     * @param nbOfCars Liczba samochodów w symulacji.
+     * @param nbOfPedestrians Liczba pieszych w symulacji.
+     * @param parent
+     */
     MainWindow(int nbOfCars = 0, int nbOfPedestrians = 0, QWidget *parent = nullptr);
     ~MainWindow();
 
 private:
     QGraphicsScene* scene;
-    std::vector<traffic_lights_controller*> controllers;
 };
 #endif // MAINWINDOW_H

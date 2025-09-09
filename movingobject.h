@@ -3,30 +3,62 @@
 
 #include <QGraphicsRectItem>
 #include <QObject>
-#include "traffic_lights.h"
-
+#include "Direction.h"
+/**
+ * @brief The MovingObject class
+ * Klasa abstrakcyjna implementująca zachowanie ruszającego się przedmiotu na mapie.
+ */
 
 class MovingObject :  public QGraphicsRectItem {
 
 public:
+    /**
+     * @brief MovingObject Konstruktor
+     */
     MovingObject();
-
-    enum Direction{ UP, DOWN, LEFT, RIGHT};
-
+    /**
+     * @brief setSpeed Metoda ustawiająca prędkość przedmiotu.
+     * @param s wartość prędkości qreal.
+     */
     void setSpeed(qreal s);
+    /**
+     * @brief getDefaultSpeed Metoda zwracająca domyślną prędkość przedmiotu.
+     * @return
+     */
     qreal getDefaultSpeed() {return default_speed;}
-
-    void setDirection(Direction d) {direction = d;};
-    Direction getDirection() const {return direction; }
+    /**
+     * @brief setDirection Metoda ustawiająca kierunek, w którym porusza się przedmiot.
+     * @param d kierunek z klasy Direction.
+     */
+    void setDirection(Direction::direction d) {direction = d;};
+    /**
+     * @brief getDirection Metoda zwracająca kierunek, w którym porusza się przedmiot.
+     * @return
+     */
+    Direction::direction getDirection() const {return direction; }
+    /**
+     * @brief getSpeed Metoda zwracająca aktualną prędkość przedmiotu.
+     * @return
+     */
     qreal getSpeed() const {return speed;}
-
-public slots:
-    void move();
+    /**
+     * @brief move wirtualna metoda do implementacji ruchu przedmiotu.
+     */
+    virtual void move() = 0;
 
 private:
+    /**
+     * @brief speed Zmiennoprzecinkowa wartość prędkości przedmiotu.
+     */
     qreal speed;
+    /**
+     * @brief default_speed Zmiennoprzecinkowa wartość domyślnej prędkości przedmiotu.
+     */
     qreal default_speed = 3;
-    Direction direction = RIGHT;
+    /**
+     * @brief direction kierunek poruszania się z klasy Direction.
+     */
+    Direction::direction direction = Direction::RIGHT;
 };
 
 #endif // MOVINGOBJECT_H

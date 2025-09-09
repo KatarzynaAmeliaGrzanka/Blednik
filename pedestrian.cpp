@@ -6,7 +6,7 @@
 
 
 
-pedestrian::pedestrian(Direction dir, const std::vector<intersection *> &intersections, const std::vector<pedestrian_crossing*>& crossings, std::vector<QPointF> car_start_points, QGraphicsItem *parent)
+pedestrian::pedestrian(Direction::direction dir, const std::vector<intersection *> &intersections, const std::vector<pedestrian_crossing*>& crossings, std::vector<QPointF> car_start_points, QGraphicsItem *parent)
  :QObject(), MovingObject(), intersections(intersections), crossings(crossings), car_start_points(car_start_points)
 {
     setRect(-10, -10, 10, 10);
@@ -26,7 +26,7 @@ void pedestrian::move()
             double dy = nearestIntersection(pos())->getPosition().y() - pos().y();
             double dxy = std::sqrt(dx*dx + dy*dy);
             if (dxy < 100 && lastIntersection != nearestIntersection(pos())){
-                qDebug() << 4;
+                qDebug() << 5;
                 state = APPROACHING;
             }
 
@@ -39,7 +39,7 @@ void pedestrian::move()
             }
 
 
-            dx2 = nearestCrossing(pos())->getStop2().x() - pos().x();
+        /*    dx2 = nearestCrossing(pos())->getStop2().x() - pos().x();
             dy2 = nearestCrossing(pos())->getStop2().y() - pos().y();
             dxy2 = std::sqrt(dx2*dx2 + dy2*dy2);
 
@@ -47,46 +47,46 @@ void pedestrian::move()
             if (dxy2 < 30 && nearestCrossing(pos()) != lastCrossing){
                 state = APPROACHING_CROSSING;
             }
-
+*/
 
         break;
     }
         case APPROACHING:
             setSpeed(1);
             lastIntersection = nearestIntersection(pos());
-            if(getDirection() == RIGHT){
+            if(getDirection() == Direction::RIGHT){
             if (std::abs(pos().x() - getTurnPoint())<1){
-                setDirection(DOWN);
+                setDirection(Direction::DOWN);
                 setSpeed(getDefaultSpeed());
                 state = WALKING;
             }
             }
-            if(getDirection() == LEFT){
-            if (std::abs(pos().x() - getTurnPoint())<1){
-                setDirection(UP);
-                setSpeed(getDefaultSpeed());
-                state = WALKING;
-            }
-            }
-
-            if(getDirection() == DOWN){
-            if (std::abs(pos().y() - getTurnPoint())<1 && lastIntersection->getPosition().x() > pos().x()){
-                setDirection(LEFT);
-                setSpeed(getDefaultSpeed());
-                state = WALKING;
-            }
-
-            else if (std::abs(pos().y() - getTurnPoint())<1 && lastIntersection->getPosition().x() < pos().x()){
-                setDirection(RIGHT);
+            if(getDirection() == Direction::LEFT){
+            if (std::abs(pos().x() - getTurnPoint())<0.5){
+                setDirection(Direction::UP);
                 setSpeed(getDefaultSpeed());
                 state = WALKING;
             }
             }
 
+            if(getDirection() == Direction::DOWN){
+            if (std::abs(pos().y() - getTurnPoint())<0.5 && lastIntersection->getPosition().x() > pos().x()){
+                setDirection(Direction::LEFT);
+                setSpeed(getDefaultSpeed());
+                state = WALKING;
+            }
 
-            if(getDirection() == UP){
-            if (std::abs(pos().y() - getTurnPoint())<1){
-                setDirection(RIGHT);
+            else if (std::abs(pos().y() - getTurnPoint())<0.5 && lastIntersection->getPosition().x() < pos().x()){
+                setDirection(Direction::RIGHT);
+                setSpeed(getDefaultSpeed());
+                state = WALKING;
+            }
+            }
+
+
+            if(getDirection() == Direction::UP){
+            if (std::abs(pos().y() - getTurnPoint())<0.5){
+                setDirection(Direction::RIGHT);
                 setSpeed(getDefaultSpeed());
                 state = WALKING;
             }
@@ -98,11 +98,7 @@ void pedestrian::move()
     case APPROACHING_CROSSING:
         setSpeed(1);
 
-        choice = QRandomGenerator::global()->bounded(2);
-
-
-
-        if (distance(pos(), nearestCrossing(pos())->getStop1()) < 1 || distance(pos(), nearestCrossing(pos())->getStop1()) < 1){
+        if (distance(pos(), nearestCrossing(pos())->getStop1()) < 1){
             state = DECIDING;
         }
 
@@ -120,14 +116,14 @@ void pedestrian::move()
            }
 
            else if(choice == 1){
-               if(getDirection() == DOWN){
-                  setDirection(RIGHT);
+               if(getDirection() == Direction::DOWN){
+                  setDirection(Direction::RIGHT);
                   lastCrossing->setOccupied();
                   state = CROSSING;
                }
 
-               if(getDirection() == UP){
-                  setDirection(RIGHT);
+               if(getDirection() == Direction::UP){
+                  setDirection(Direction::RIGHT);
                   state = CROSSING;
                }
            }
@@ -138,7 +134,7 @@ void pedestrian::move()
     case CROSSING:
 
        if (pos().x() == nearestCrossing(pos())->getStop2().x()){
-           setDirection(UP);
+           setDirection(Direction::UP);
            //lastCrossing = nullptr;
            lastIntersection = nullptr;
            setSpeed(getDefaultSpeed());
@@ -160,39 +156,39 @@ void pedestrian::goAhead()
 {
     QPointF p = pos();
     switch(getDirection()) {
-        case RIGHT:
+        case Direction::RIGHT:
             setPos(p.x() + getSpeed(), p.y());
             if (x() > 1150) {
                 lastIntersection = nullptr;
                 setY(y() - 110);
-                setDirection(LEFT);
+                setDirection(Direction::LEFT);
             }
         break;
 
-        case LEFT:
+        case Direction::LEFT:
             setPos(p.x() - getSpeed(), p.y());
             if (x() < 1) {
                 lastIntersection = nullptr;
                 setY(y() + 110);
-                setDirection(RIGHT);
+                setDirection(Direction::RIGHT);
             }
         break;
 
-        case UP:
+        case Direction::UP:
             setPos(p.x(), p.y() - getSpeed());
             if (y() < 1) {
                 lastIntersection = nullptr;
                 setX(x() - 110);
-                setDirection(DOWN);
+                setDirection(Direction::DOWN);
             }
         break;
 
-        case DOWN:
+        case Direction::DOWN:
             setPos(p.x(), p.y() + getSpeed());
             if (y() > 1150) {
                 lastIntersection = nullptr;
                 setX(x() + 110);
-                setDirection(UP);
+                setDirection(Direction::UP);
             }
         break;
 
@@ -250,10 +246,10 @@ qreal pedestrian::distance(QPointF a, QPointF b)
 int pedestrian::getTurnPoint()
 {
     int stop = 0;
-    if (getDirection() == RIGHT) stop = nearestIntersection(pos())->getPosition().x() - 50;
-    if (getDirection() == LEFT) stop = nearestIntersection(pos())->getPosition().x() + 50;
-    if (getDirection() == UP) stop = nearestIntersection(pos())->getPosition().y() + 60;
-    if (getDirection() == DOWN) stop = nearestIntersection(pos())->getPosition().y() - 50;
+    if (getDirection() == Direction::RIGHT) stop = nearestIntersection(pos())->getPosition().x() - 50;
+    if (getDirection() == Direction::LEFT) stop = nearestIntersection(pos())->getPosition().x() + 60;
+    if (getDirection() == Direction::UP) stop = nearestIntersection(pos())->getPosition().y() + 60;
+    if (getDirection() == Direction::DOWN) stop = nearestIntersection(pos())->getPosition().y() - 50;
 
     return stop;
 }
