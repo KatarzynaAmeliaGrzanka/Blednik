@@ -5,7 +5,10 @@
 #include "movingobject.h"
 #include "pedestrian_crossing.h"
 
-
+/**
+ * @brief The pedestrian class
+ * Klasa dziedzicząca po MovingObject zawierająca implementację pieszego, który porusza się po mapie.
+ */
 class pedestrian : public QObject, public MovingObject {
     Q_OBJECT
     /**
@@ -71,27 +74,27 @@ private:
     /**
      * @brief state aktualny stan pieszego.
      */
-    PedestrianState state = WALKING;
+    PedestrianState m_state = WALKING;
     /**
      * @brief intersections wektor skrzyżowań.
      */
-    std::vector<intersection*> intersections;
+    std::vector<intersection*> m_intersections;
     /**
      * @brief crossings Wektor przejść dla pieszych.
      */
-    std::vector<pedestrian_crossing*> crossings;
+    std::vector<pedestrian_crossing*> m_crossings;
     /**
      * @brief lastIntersection Ostatnie skrzyżowanie, na którym był pieszy.
      */
-    intersection* lastIntersection = nullptr;
+    intersection* m_lastIntersection = nullptr;
     /**
      * @brief lastCrossing Ostatnie przejście, na którym był pieszy.
      */
-    pedestrian_crossing* lastCrossing = nullptr;
+    pedestrian_crossing* m_lastCrossing = nullptr;
     /**
      * @brief car_start_points Punkty, z którch starują smaochody w symulacji.
      */
-    std::vector<QPointF> car_start_points;
+    std::vector<QPointF> m_car_start_points;
 
 };
 

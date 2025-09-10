@@ -32,11 +32,11 @@ private:
     /**
      * @brief carCountSpin wskaźnik do widgeta Qt typu QSpinBox, liczba samochodów
      */
-    QSpinBox* carCountSpin;
+    QSpinBox* m_carCountSpin;
     /**
      * @brief PedestrianCountSpin wskaźnik do widgeta Qt typu QSpinBox, liczba samochodów
      */
-    QSpinBox* PedestrianCountSpin;
+    QSpinBox* m_PedestrianCountSpin;
 };
 
 #endif // STARTWINDOW_H

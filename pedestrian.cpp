@@ -7,7 +7,7 @@
 
 
 pedestrian::pedestrian(Direction::direction dir, const std::vector<intersection *> &intersections, const std::vector<pedestrian_crossing*>& crossings, std::vector<QPointF> car_start_points, QGraphicsItem *parent)
- :QObject(), MovingObject(), intersections(intersections), crossings(crossings), car_start_points(car_start_points)
+ :QObject(), MovingObject(), m_intersections(intersections), m_crossings(crossings), m_car_start_points(car_start_points)
 {
     setRect(-10, -10, 10, 10);
     setBrush(QBrush(Qt::yellow));
@@ -17,69 +17,58 @@ pedestrian::pedestrian(Direction::direction dir, const std::vector<intersection 
 
 void pedestrian::move()
 {
-    intersection *nearest_intersection;
+    intersection *nearest_intersection = nearestIntersection(pos());
     int choice;
-    switch (state){
+    switch (m_state){
     case WALKING: {
         setSpeed(getDefaultSpeed());
-            double dx = nearestIntersection(pos())->getPosition().x() - pos().x();
-            double dy = nearestIntersection(pos())->getPosition().y() - pos().y();
+            double dx = nearest_intersection->getPosition().x() - pos().x();
+            double dy = nearest_intersection->getPosition().y() - pos().y();
             double dxy = std::sqrt(dx*dx + dy*dy);
-            if (dxy < 100 && lastIntersection != nearestIntersection(pos())){
+            if (dxy < 100 && m_lastIntersection != nearest_intersection){
                 qDebug() << 5;
-                state = APPROACHING;
+                m_state = APPROACHING;
             }
 
             double dx2 = nearestCrossing(pos())->getStop1().x() - pos().x();
             double dy2 = nearestCrossing(pos())->getStop1().y() - pos().y();
             double dxy2 = std::sqrt(dx2*dx2 + dy2*dy2);
 
-            if (dxy2 < 30 && nearestCrossing(pos()) != lastCrossing){
-                state = APPROACHING_CROSSING;
+            if (dxy2 < 30 && nearestCrossing(pos()) != m_lastCrossing){
+                m_state = APPROACHING_CROSSING;
             }
-
-
-        /*    dx2 = nearestCrossing(pos())->getStop2().x() - pos().x();
-            dy2 = nearestCrossing(pos())->getStop2().y() - pos().y();
-            dxy2 = std::sqrt(dx2*dx2 + dy2*dy2);
-
-
-            if (dxy2 < 30 && nearestCrossing(pos()) != lastCrossing){
-                state = APPROACHING_CROSSING;
-            }
-*/
 
         break;
     }
         case APPROACHING:
             setSpeed(1);
-            lastIntersection = nearestIntersection(pos());
+            m_lastIntersection = nearestIntersection(pos());
             if(getDirection() == Direction::RIGHT){
             if (std::abs(pos().x() - getTurnPoint())<1){
                 setDirection(Direction::DOWN);
                 setSpeed(getDefaultSpeed());
-                state = WALKING;
+                m_state = WALKING;
             }
             }
             if(getDirection() == Direction::LEFT){
             if (std::abs(pos().x() - getTurnPoint())<0.5){
                 setDirection(Direction::UP);
                 setSpeed(getDefaultSpeed());
-                state = WALKING;
+                m_state = WALKING;
             }
             }
 
             if(getDirection() == Direction::DOWN){
-            if (std::abs(pos().y() - getTurnPoint())<0.5 && lastIntersection->getPosition().x() > pos().x()){
+            if (std::abs(pos().y() - getTurnPoint())<0.5 && m_lastIntersection->getPosition().x() > pos().x()){
                 setDirection(Direction::LEFT);
                 setSpeed(getDefaultSpeed());
-                state = WALKING;
+                m_state = WALKING;
             }
 
-            else if (std::abs(pos().y() - getTurnPoint())<0.5 && lastIntersection->getPosition().x() < pos().x()){
+            else if (std::abs(pos().y() - getTurnPoint())<0.5 && m_lastIntersection->getPosition().x() < pos().x()){
                 setDirection(Direction::RIGHT);
                 setSpeed(getDefaultSpeed());
-                state = WALKING;
+                m_state = WALKING;
             }
             }
 
@@ -88,7 +77,7 @@ void pedestrian::move()
             if (std::abs(pos().y() - getTurnPoint())<0.5){
                 setDirection(Direction::RIGHT);
                 setSpeed(getDefaultSpeed());
-                state = WALKING;
+                m_state = WALKING;
             }
             }
 
@@ -97,34 +86,30 @@ void pedestrian::move()
 
     case APPROACHING_CROSSING:
         setSpeed(1);
-
         if (distance(pos(), nearestCrossing(pos())->getStop1()) < 1){
-            state = DECIDING;
+            m_state = DECIDING;
         }
-
-
-
         break;
 
     case DECIDING:
         choice = QRandomGenerator::global()->bounded(2); //0 - prosto, 1 - skręca
-        lastCrossing = nearestCrossing(pos());
+        m_lastCrossing = nearestCrossing(pos());
 
            if (choice == 0){
                setSpeed(getDefaultSpeed());
-               state = WALKING;
+               m_state = WALKING;
            }
 
            else if(choice == 1){
                if(getDirection() == Direction::DOWN){
                   setDirection(Direction::RIGHT);
-                  lastCrossing->setOccupied();
-                  state = CROSSING;
+                  m_lastCrossing->setOccupied();
+                  m_state = CROSSING;
                }
 
                if(getDirection() == Direction::UP){
                   setDirection(Direction::RIGHT);
-                  state = CROSSING;
+                  m_state = CROSSING;
                }
            }
 
@@ -136,10 +121,10 @@ void pedestrian::move()
        if (pos().x() == nearestCrossing(pos())->getStop2().x()){
            setDirection(Direction::UP);
            //lastCrossing = nullptr;
-           lastIntersection = nullptr;
+           m_lastIntersection = nullptr;
            setSpeed(getDefaultSpeed());
-           lastCrossing->setEmpty();
-           state = WALKING;
+           m_lastCrossing->setEmpty();
+           m_state = WALKING;
        }
         break;
 
@@ -158,8 +143,8 @@ void pedestrian::goAhead()
     switch(getDirection()) {
         case Direction::RIGHT:
             setPos(p.x() + getSpeed(), p.y());
-            if (x() > 1150) {
-                lastIntersection = nullptr;
+            if (x() > 900) {
+                m_lastIntersection = nullptr;
                 setY(y() - 110);
                 setDirection(Direction::LEFT);
             }
@@ -168,7 +153,7 @@ void pedestrian::goAhead()
         case Direction::LEFT:
             setPos(p.x() - getSpeed(), p.y());
             if (x() < 1) {
-                lastIntersection = nullptr;
+                m_lastIntersection = nullptr;
                 setY(y() + 110);
                 setDirection(Direction::RIGHT);
             }
@@ -177,7 +162,7 @@ void pedestrian::goAhead()
         case Direction::UP:
             setPos(p.x(), p.y() - getSpeed());
             if (y() < 1) {
-                lastIntersection = nullptr;
+                m_lastIntersection = nullptr;
                 setX(x() - 110);
                 setDirection(Direction::DOWN);
             }
@@ -185,8 +170,8 @@ void pedestrian::goAhead()
 
         case Direction::DOWN:
             setPos(p.x(), p.y() + getSpeed());
-            if (y() > 1150) {
-                lastIntersection = nullptr;
+            if (y() > 900) {
+                m_lastIntersection = nullptr;
                 setX(x() + 110);
                 setDirection(Direction::UP);
             }
@@ -203,7 +188,7 @@ intersection *pedestrian::nearestIntersection(QPointF pos)
            intersection* nearest_intersection = nullptr;
 
            // find nearest intersection
-           for (auto* i : intersections){
+           for (auto* i : m_intersections){
                double dx = i->getPosition().x() - pos.x();
                double dy = i->getPosition().y() - pos.y();
                double dxy = std::sqrt(dx*dx + dy*dy);
@@ -223,7 +208,7 @@ pedestrian_crossing *pedestrian::nearestCrossing(QPointF pos)
            pedestrian_crossing* nearest_crossing = nullptr;
 
            // find nearest intersection
-           for (auto* i : crossings){
+           for (auto* i : m_crossings){
                double dx = i->getPosition().x() - pos.x();
                double dy = i->getPosition().y() - pos.y();
                double dxy = std::sqrt(dx*dx + dy*dy);

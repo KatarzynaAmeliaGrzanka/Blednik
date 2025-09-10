@@ -8,7 +8,7 @@
 
 /**
  * @brief The MainWindow class
- * Klasa głownego okna aplikacji.
+ * Klasa głownego okna aplikacji, gdzie wyświetlana jest symulacja.
  */
 class MainWindow : public QMainWindow
 {

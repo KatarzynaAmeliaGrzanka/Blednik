@@ -45,7 +45,7 @@ public:
     * @brief getState Metoda zwracająca aktualny stan kontrolera.
     * @return
     */
-   bool getState(){return state;} // stan dla całego skrzyzowania
+   bool getState(){return m_state;} // stan dla całego skrzyzowania
 
 signals:
    /**
@@ -62,7 +62,7 @@ public slots:
     void toggle();
 
 private:
-    struct Intesection{
+    struct m_Intesection{
         traffic_lights* north;
         traffic_lights* south;
         traffic_lights* east;
@@ -71,19 +71,19 @@ private:
     /**
      * @brief intersections Wektor skrzyżowań
      */
-    std::vector<Intesection> intersections;
+    std::vector<m_Intesection> m_intersections;
     /**
      * @brief timer Timer do wysyłania sygnału.
      */
-    QTimer timer;
+    QTimer m_timer;
     /**
      * @brief state stan kontrolera.
      */
-    bool state = true;
+    bool m_state = true;
     /**
      * @brief position Położenie kontrolera.
      */
-    QPointF position;
+    QPointF m_position;
 };
 
 #endif // TRAFFIC_LIGHTS_CONTROLLER_H

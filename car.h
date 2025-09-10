@@ -29,7 +29,6 @@ public:
         DRIVING,
         APPROACHING,
         WAITING,
-        TURNING,
         CROSSING,
         DECIDING,
         TURN_RIGHT,
@@ -55,7 +54,7 @@ public:
      * @brief addControllers metoda ustawia wartość przechowującą kontroleru świateł
      * @param c wektor z kontrolerami świateł ulicznych na mapie.
      */
-    void addControllers(std::vector<traffic_lights_controller*> c){controllers = c;};
+    void addControllers(std::vector<traffic_lights_controller*> c){m_controllers = c;};
     /**
      * @brief nearestIntersection metoda zwracająca najbliższe skrzyżowanie
      * @param pos QPointF z pozycją, dla której będzie sprawdzać
@@ -92,35 +91,35 @@ private:
    /**
     * @brief stopAt pozycja QPointF gdzie samochód ma się zatrzymać przed skrzyżowaniem.
     */
-   QPointF stopAt;
+   QPointF m_stopAt;
    /**
      * @brief currentController wskaźnik do aktualnego kontrolera światłę, na który reaguje samochód
      */
-    traffic_lights_controller* currentController = nullptr;
+    traffic_lights_controller* m_currentController = nullptr;
     /**
      * @brief controllers wektor wszystkich kontrolerów świateł na mapie.
      */
-    std::vector<traffic_lights_controller*> controllers;
+    std::vector<traffic_lights_controller*> m_controllers;
     /**
      * @brief crossings wektor wszystkich przejść dla pieszych.
      */
-    std::vector<pedestrian_crossing*> crossings;
+    std::vector<pedestrian_crossing*> m_crossings;
     /**
      * @brief intersections wektor wszystkich skrzyżowań na mapie.
      */
-    std::vector<intersection*> intersections;
+    std::vector<intersection*> m_intersections;
     /**
      * @brief lastIntersection zapamiętane ostatnie skrzyżowanie, na którym był samochód.
      */
-    intersection* lastIntersection = nullptr;
+    intersection* m_lastIntersection = nullptr;
     /**
      * @brief state aktualny stan samochodu (np. skręca, czeka itp.)
      */
-    CarState state = DRIVING;
+    CarState m_state = DRIVING;
     /**
      * @brief startOfIntersection początek skrzyżowanie przed samochodem.
      */
-    QPointF startOfIntersection;
+    QPointF m_startOfIntersection;
 };
 
 #endif // CAR_H

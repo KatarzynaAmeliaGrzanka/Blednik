@@ -9,7 +9,7 @@
 
 
 car::car(Direction::direction dir, const std::vector<intersection *> &intersections, const std::vector<pedestrian_crossing*>& crossings, QGraphicsItem *parent)
-    :QObject(), MovingObject(), crossings(crossings), intersections(intersections)
+    :QObject(), MovingObject(), m_crossings(crossings), m_intersections(intersections)
 {
     setRect(-10, -10, 20, 20);
     setBrush(QBrush(Qt::lightGray));
@@ -21,27 +21,26 @@ car::car(Direction::direction dir, const std::vector<intersection *> &intersecti
 void car::move()
 {
     QPointF posNow = pos();
-    traffic_lights_controller* nearest_controller = nullptr;
     intersection* nearest_intersection = nullptr;
     pedestrian_crossing* nearest_crossing = nullptr;
     int stop = 0;
     int choice;
 
 
-    switch (state){
+    switch (m_state){
     case DRIVING:
         nearest_intersection = nearestIntersection(posNow);
         nearest_crossing = nearestCrossing(posNow);
 
         setSpeed(getDefaultSpeed());
-        if(nearest_intersection && nearest_intersection->hasLights() && nearest_intersection->getController() != currentController){
+        if(nearest_intersection && nearest_intersection->hasLights() && nearest_intersection->getController() != m_currentController){
             double dx = nearest_intersection->getPosition().x() - posNow.x();
             double dy =nearest_intersection->getPosition().y() - posNow.y();
             double dxy = std::sqrt(dx*dx + dy*dy);
 
             if (dxy < 100){
-                lastIntersection = nullptr;
-                state = APPROACHING;
+                m_lastIntersection = nullptr;
+                m_state = APPROACHING;
             }
 
         }
@@ -51,30 +50,28 @@ void car::move()
             double dy = nearest_crossing->getPosition().y() - posNow.y();
             double dxy = std::sqrt(dx*dx + dy*dy);
 
-            if (dxy < 100){
+            if (dxy < 60){
                 qDebug()<< "pieszy na pasach";
-                state = WAITING_AT_CROSSING;
+                m_state = WAITING_AT_CROSSING;
                 setSpeed(0);
             }
         }
 
-        if(!nearest_intersection->hasLights() && lastIntersection != nearest_intersection){
+        if(!nearest_intersection->hasLights() && m_lastIntersection != nearest_intersection){
 
             double dx = nearest_intersection->getPosition().x() - posNow.x();
             double dy = nearest_intersection->getPosition().y() - posNow.y();
             double dxy = std::sqrt(dx*dx + dy*dy);
 
             if (dxy < 60){
-                lastIntersection = nearest_intersection;
-
+               m_lastIntersection = nearest_intersection;
                 setSpeed(1);
-                startOfIntersection = getStartOfIntersection(getDirection());
-                if (lastIntersection && lastIntersection ->isOccupied()){
+                m_startOfIntersection = getStartOfIntersection(getDirection());
+                if (m_lastIntersection && m_lastIntersection ->isOccupied()){
                     setSpeed(0);
-                    qDebug()<<"heree";
-                    state = WAITING_TO_CROSS;
+                    m_state = WAITING_TO_CROSS;
                 }
-                else{state = DECIDING;}
+                else{m_state = DECIDING;}
             }
         }
         break;
@@ -82,42 +79,42 @@ void car::move()
     case  APPROACHING:
         setSpeed(1);
 
-        currentController = nearestIntersection(pos())->getController();
+        m_currentController = nearestIntersection(pos())->getController();
 
-        connect(currentController, &traffic_lights_controller::lightChanged,
+        connect(m_currentController, &traffic_lights_controller::lightChanged,
                                    this, &car::onLightChanged);
 
                       if (this->getDirection()==Direction::RIGHT) {
                           stop = nearestIntersection(pos())->getPosition().x()-50;
-                          startOfIntersection = QPointF( stop, posNow.y());
+                          m_startOfIntersection = QPointF( stop, posNow.y());
                       }
                       if (this->getDirection()==Direction::LEFT){
                           stop = nearestIntersection(pos())->getPosition().x()+50;
-                          startOfIntersection = QPointF( stop, posNow.y());
+                          m_startOfIntersection = QPointF( stop, posNow.y());
                       }
                       if (this->getDirection()==Direction::UP){
 
                           stop = nearestIntersection(pos())->getPosition().y()+50;
-                          startOfIntersection = QPointF( posNow.x(), stop);
+                          m_startOfIntersection = QPointF( posNow.x(), stop);
                       }
                       if (this->getDirection()==Direction::DOWN){
                           stop = nearestIntersection(pos())->getPosition().y()-50;
-                          startOfIntersection = QPointF( posNow.x(), stop);
+                          m_startOfIntersection = QPointF( posNow.x(), stop);
                       }
 
                      if (getDirection() == Direction::RIGHT || getDirection() == Direction::LEFT){
                           if(std::abs(posNow.x() - stop) < 0.5){
-                              if( !currentController->getState()) {
-                              state = WAITING;
+                              if( !m_currentController->getState()) {
+                              m_state = WAITING;
                               }
 
                               else {
                                   if(nearestIntersection(pos())->isOccupied()){
                                       setSpeed(0);
-                                        state = WAITING_TO_CROSS;
+                                        m_state = WAITING_TO_CROSS;
                                   }
                                   else {
-                                      state = DECIDING;
+                                      m_state = DECIDING;
                                   setSpeed(1);}
                               }
                           }
@@ -125,18 +122,18 @@ void car::move()
 
                      if (getDirection() == Direction::UP || getDirection() == Direction::DOWN){
                           if(std::abs(posNow.y() - stop) < 0.5){
-                              if( currentController->getState()) {
-                              state = WAITING;
+                              if( m_currentController->getState()) {
+                              m_state = WAITING;
                               }
 
 
                               else {
                                   if(nearestIntersection(pos())->isOccupied()){
                                       setSpeed(0);
-                                      state = WAITING_TO_CROSS;
+                                      m_state = WAITING_TO_CROSS;
                                   }
                                   else{
-                                  state = DECIDING;
+                                  m_state = DECIDING;
                                   setSpeed(1);}
                               }
                           }
@@ -145,13 +142,12 @@ void car::move()
         break;
 
      case WAITING_TO_CROSS:
-        qDebug()<< "heree2";
         qDebug() << nearestCrossing(pos())->isOccupied();
 
         if (!nearestIntersection(pos())->isOccupied()){
                 setSpeed(1);
                 qDebug()<<"here";
-                state = DECIDING;
+                m_state = DECIDING;
          }
         break;
 
@@ -159,59 +155,59 @@ void car::move()
     case WAITING_AT_CROSSING:
         if (!nearestCrossing(pos())->isOccupied()){
             setSpeed(getDefaultSpeed());
-            state = DRIVING;
+           m_state = DRIVING;
         }
         break;
 
     case DECIDING:
-    lastIntersection = nearestIntersection(pos());
-    lastIntersection->setOccupied();
+    m_lastIntersection = nearestIntersection(pos());
+    m_lastIntersection->setOccupied();
 
        choice = QRandomGenerator::global()->bounded(3); // 0 prosto 1 lewo 2 prawo
-       if (choice == 1) state = TURN_RIGHT;
-       if (choice == 2) state = TURN_LEFT;
+       if (choice == 1) m_state = TURN_RIGHT;
+       if (choice == 2) m_state = TURN_LEFT;
        if (choice == 0 ) {
            nearestIntersection(pos())->setEmpty();
            setSpeed(getDefaultSpeed());
-           state = DRIVING;}
+           m_state = DRIVING;}
 
        break;
 
      case TURN_RIGHT:
 
         if (getDirection() == Direction::RIGHT){
-            if (pos().x() == startOfIntersection.x() +30){
+            if (pos().x() == m_startOfIntersection.x() +30){
                 setDirection(Direction::DOWN);
                 setSpeed(getDefaultSpeed());
                 nearestIntersection(pos())->setEmpty();
-                state = DRIVING;
+                m_state = DRIVING;
             }
         }
 
         if (getDirection() == Direction::LEFT){
-            if (pos().x() == startOfIntersection.x() -30){
+            if (pos().x() == m_startOfIntersection.x() -30){
                 setDirection(Direction::UP);
                 setSpeed(getDefaultSpeed());
                 nearestIntersection(pos())->setEmpty();
-                state = DRIVING;
+                m_state = DRIVING;
             }
         }
 
         if (getDirection() ==Direction::UP){
-            if (pos().y() == startOfIntersection.y() -30){
+            if (pos().y() == m_startOfIntersection.y() -30){
                 setDirection(Direction::RIGHT);
                 setSpeed(getDefaultSpeed());
                 nearestIntersection(pos())->setEmpty();
-                state = DRIVING;
+                m_state = DRIVING;
             }
         }
 
         if (getDirection() == Direction::DOWN){
-            if (pos().y() == startOfIntersection.y() +30){
+            if (pos().y() == m_startOfIntersection.y() +30){
                 setDirection(Direction::LEFT);
                 setSpeed(getDefaultSpeed());
                 nearestIntersection(pos())->setEmpty();
-                state = DRIVING;
+                m_state = DRIVING;
             }
         }
 
@@ -221,37 +217,37 @@ void car::move()
     case TURN_LEFT:
 
         if (getDirection() == Direction::RIGHT){
-           if (pos().x() == startOfIntersection.x() +75){
+           if (pos().x() == m_startOfIntersection.x() +75){
                setDirection(Direction::UP);
                setSpeed(getDefaultSpeed());
                nearestIntersection(pos())->setEmpty();
-               state = DRIVING;
+               m_state = DRIVING;
            }
         }
         if (getDirection() == Direction::LEFT){
-           if (pos().x() == startOfIntersection.x() -75){
+           if (pos().x() == m_startOfIntersection.x() -75){
                setDirection(Direction::DOWN);
                setSpeed(getDefaultSpeed());
                nearestIntersection(pos())->setEmpty();
-               state = DRIVING;
+               m_state = DRIVING;
            }
         }
 
         if (getDirection() == Direction::UP){
-           if (pos().y() == startOfIntersection.y() -75){
+           if (pos().y() == m_startOfIntersection.y() -75){
                setDirection(Direction::LEFT);
                setSpeed(getDefaultSpeed());
                nearestIntersection(pos())->setEmpty();
-               state = DRIVING;
+              m_state = DRIVING;
            }
         }
 
         if (getDirection() == Direction::DOWN){
-           if (pos().y() == startOfIntersection.y() +75){
+           if (pos().y() == m_startOfIntersection.y() +75){
                setDirection(Direction::RIGHT);
                setSpeed(getDefaultSpeed());
                nearestIntersection(pos())->setEmpty();
-               state = DRIVING;
+               m_state = DRIVING;
            }
         }
        break;
@@ -260,17 +256,17 @@ void car::move()
 
         setSpeed(0);
         if (getDirection() == Direction::RIGHT || getDirection() == Direction::LEFT){
-        if( currentController->getState()) {
+        if( m_currentController->getState()) {
 
            setSpeed(1);
-           state = DECIDING;
+           m_state = DECIDING;
         }
         }
         if (getDirection() == Direction::UP || getDirection() == Direction::DOWN){
-        if( !currentController->getState()) {
+        if( !m_currentController->getState()) {
 
            setSpeed(1);
-           state = DECIDING;
+           m_state = DECIDING;
         }
         }
 
@@ -278,9 +274,9 @@ void car::move()
   case CROSSING:
 
 
-       if (pos().x() > startOfIntersection.x() + 75)
+       if (pos().x() > m_startOfIntersection.x() + 75)
        {
-           state = DRIVING;
+           m_state = DRIVING;
 }
 
         break;
@@ -305,7 +301,7 @@ intersection *car::nearestIntersection(QPointF pos)
            intersection* nearest_intersection = nullptr;
 
            // find nearest intersection
-           for (auto* i : intersections){
+           for (auto* i : m_intersections){
                double dx = i->getPosition().x() - pos.x();
                double dy = i->getPosition().y() - pos.y();
                double dxy = std::sqrt(dx*dx + dy*dy);
@@ -325,7 +321,7 @@ pedestrian_crossing *car::nearestCrossing(QPointF pos)
            pedestrian_crossing* nearest_crossing = nullptr;
 
            // find nearest intersection
-           for (auto* i : crossings){
+           for (auto* i : m_crossings){
                double dx = i->getPosition().x() - pos.x();
                double dy = i->getPosition().y() - pos.y();
                double dxy = std::sqrt(dx*dx + dy*dy);
@@ -345,8 +341,8 @@ void car::goAhead()
         case Direction::RIGHT:
             setPos(p.x() + getSpeed(), p.y());
             if (x() > 1150) {
-                currentController = nullptr;
-                lastIntersection = nullptr;
+                m_currentController = nullptr;
+                m_lastIntersection = nullptr;
                 //speed = -speed;
                 //default_speed = speed;
                 setY(y() - 40);
@@ -357,10 +353,8 @@ void car::goAhead()
         case Direction::LEFT:
             setPos(p.x() - getSpeed(), p.y());
             if (x() < 1) {
-                currentController = nullptr;
-                lastIntersection = nullptr;
-                //speed = -speed;
-                //default_speed = speed;
+                m_currentController = nullptr;
+                m_lastIntersection = nullptr;
                 setY(y() + 40);
                 setDirection(Direction::RIGHT);
             }
@@ -369,10 +363,8 @@ void car::goAhead()
         case Direction::UP:
             setPos(p.x(), p.y() - getSpeed());
             if (y() < 1) {
-                lastIntersection = nullptr;
-                currentController = nullptr;
-                //speed = -speed;
-                //default_speed = speed;
+                m_lastIntersection = nullptr;
+                m_currentController = nullptr;
                 setX(x() - 40);
                 setDirection(Direction::DOWN);
             }
@@ -381,10 +373,8 @@ void car::goAhead()
         case Direction::DOWN:
             setPos(p.x(), p.y() + getSpeed());
             if (y() > 1150) {
-                currentController = nullptr;
-                lastIntersection = nullptr;
-                //speed = -speed;
-                //default_speed = speed;
+                m_currentController = nullptr;
+                m_lastIntersection = nullptr;
                 setX(x() + 40);
                 setDirection(Direction::UP);
             }
@@ -400,64 +390,60 @@ QPointF car::getStartOfIntersection(Direction::direction dir)
     int stop;
     if (this->getDirection()==Direction::RIGHT) {
         stop = nearestIntersection(pos())->getPosition().x()-50;
-        startOfIntersection = QPointF( stop, pos().y());
+        m_startOfIntersection = QPointF( stop, pos().y());
     }
     if (this->getDirection()==Direction::LEFT){
         stop = nearestIntersection(pos())->getPosition().x()+50;
-        startOfIntersection = QPointF( stop, pos().y());
+        m_startOfIntersection = QPointF( stop, pos().y());
     }
     if (this->getDirection()==Direction::UP){
 
         stop = nearestIntersection(pos())->getPosition().y()+50;
-        startOfIntersection = QPointF( pos().x(), stop);
+        m_startOfIntersection = QPointF( pos().x(), stop);
     }
     if (this->getDirection()==Direction::DOWN){
         stop = nearestIntersection(pos())->getPosition().y()-50;
-        startOfIntersection = QPointF( pos().x(), stop);
+        m_startOfIntersection = QPointF( pos().x(), stop);
     }
 
-    return startOfIntersection;
+    return m_startOfIntersection;
 }
 
 void car::onLightChanged(bool greenForCars,QPointF interPos)
 {
     if(this->getDirection() == Direction::RIGHT || this->getDirection() == Direction::LEFT){
-        if (qFuzzyCompare(stopAt.x(), interPos.x()) &&
-                qFuzzyCompare(stopAt.y(), interPos.y()))
+        if (qFuzzyCompare(m_stopAt.x(), interPos.x()) &&
+                qFuzzyCompare(m_stopAt.y(), interPos.y()))
             {
                 if (greenForCars) {
-             //       qDebug() << "🚗 Ruszam, bo zielone!";
                     QTimer::singleShot(2000, this, [this]() {
                         setSpeed(getDefaultSpeed());
-                        if (currentController) {
-                                        disconnect(currentController, nullptr, this, nullptr);
-                                        currentController = nullptr;
+                        if (m_currentController) {
+                                        disconnect(m_currentController, nullptr, this, nullptr);
+                                        m_currentController = nullptr;
                                     }
-                        currentController = nullptr; // już przejechał
+                        m_currentController = nullptr; // już przejechał
                     });
 
                 } else {
-             //       qDebug() << "🚗 Stoję, czerwone.";
                 }
             }
     }
 
     if(this->getDirection() == Direction::UP || this->getDirection() == Direction::DOWN){
-        if (qFuzzyCompare(stopAt.x(), interPos.x()) &&
-                qFuzzyCompare(stopAt.y(), interPos.y()))
+        if (qFuzzyCompare(m_stopAt.x(), interPos.x()) &&
+                qFuzzyCompare(m_stopAt.y(), interPos.y()))
             {
                 if (!greenForCars) {
-             //       qDebug() << "🚗 Ruszam, bo zielone!";
                     QTimer::singleShot(2000, this, [this]() {
                         setSpeed(getDefaultSpeed());
-                        if (currentController) {
-                                        disconnect(currentController, nullptr, this, nullptr);
-                                        currentController = nullptr;
+                        if (m_currentController) {
+                                        disconnect(m_currentController, nullptr, this, nullptr);
+                                        m_currentController = nullptr;
                                     }
-                        currentController = nullptr; // już przejechał
+                        m_currentController = nullptr; // już przejechał
                     });
                 } else {
-               //     qDebug() << "🚗 Stoję, czerwone.";
                 }
             }
     }

@@ -10,13 +10,13 @@ startWindow::startWindow(QWidget* parent)
 {
     QVBoxLayout* layout = new QVBoxLayout(this);
 
-        carCountSpin = new QSpinBox(this);
-        carCountSpin->setRange(1, 5);
-        carCountSpin->setValue(1);
+        m_carCountSpin = new QSpinBox(this);
+        m_carCountSpin->setRange(1, 5);
+        m_carCountSpin->setValue(1);
 
-        PedestrianCountSpin = new QSpinBox(this);
-        PedestrianCountSpin->setRange(1, 5);
-        PedestrianCountSpin->setValue(1);
+        m_PedestrianCountSpin = new QSpinBox(this);
+        m_PedestrianCountSpin->setRange(1, 5);
+        m_PedestrianCountSpin->setValue(1);
 
         QLabel* carLabel = new QLabel("Wybierz liczbę samochodów:", this);
         QLabel* pedestrianLabel = new QLabel("Wybierz liczbę przechodniów:", this);
@@ -26,9 +26,9 @@ startWindow::startWindow(QWidget* parent)
         connect(startButton, &QPushButton::clicked, this, &QDialog::accept);
 
         layout->addWidget(carLabel);
-        layout->addWidget(carCountSpin);
+        layout->addWidget(m_carCountSpin);
         layout->addWidget(pedestrianLabel);
-        layout->addWidget(PedestrianCountSpin);
+        layout->addWidget(m_PedestrianCountSpin);
         layout->addWidget(startButton);
 
 
@@ -37,10 +37,10 @@ startWindow::startWindow(QWidget* parent)
 }
 
 int startWindow::getNbOfCars() const {
-    return carCountSpin->value();
+    return m_carCountSpin->value();
 }
 
 int startWindow::getNbOfPedestrians() const
 {
-    return PedestrianCountSpin->value();
+    return m_PedestrianCountSpin->value();
 }

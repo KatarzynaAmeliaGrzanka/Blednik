@@ -24,49 +24,49 @@ public:
     /**
      * @brief setOccupied Metoda zapisująca, że na pasach jest pieszy.
      */
-    void setOccupied() { Occupied = true; }
+    void setOccupied() { m_Occupied = true; }
     /**
      * @brief setEmpty Metoda zapisująca, że pieszy zszedł z pasów.
      */
-    void setEmpty() { Occupied = false; }
+    void setEmpty() { m_Occupied = false; }
     /**
      * @brief isOccupied Metoda wzracająca informację, czy na pasach jest pieszy.
      * @return bool
      */
-    bool isOccupied() { return Occupied;};
+    bool isOccupied() { return m_Occupied;};
     /**
      * @brief getPosition Metoda zwracająca współrzędne przejścia.
      * @return QPointF
      */
-    QPointF getPosition() { return position;}
+    QPointF getPosition() { return m_position;}
     /**
      * @brief getStop1 Metoda zwracająca współrzędne punktu wejścia na przejście po lewej stronie przejścia.
      * @return
      */
-    QPointF getStop1() {return stop1; };
+    QPointF getStop1() {return m_stop1; };
     /**
      * @brief getStop2 Metoda zwracająca współrzędne punktu wejścia na przejście po prawej stronie przejścia.
      * @return
      */
-    QPointF getStop2() {return stop2; };
+    QPointF getStop2() {return m_stop2; };
 
 private:
     /**
      * @brief position Wpółrzędne przejścia na mapie.
      */
-    QPointF position;
+    QPointF m_position;
     /**
      * @brief Occupied True - pieszy na pasach, false - nie ma pieszego na pasach.
      */
-    bool Occupied = false;
+    bool m_Occupied = false;
     /**
      * @brief stop1 współrzędne punktu wejścia na przejście po lewej stronie przejścia.
      */
-    QPointF stop1;
+    QPointF m_stop1;
     /**
      * @brief stop2 współrzędne punktu wejścia na przejście po prawej stronie przejścia
      */
-    QPointF stop2;
+    QPointF m_stop2;
 };
 
 #endif // PEDESTRIAN_CROSSING_H

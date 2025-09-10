@@ -7,7 +7,7 @@ MovingObject::MovingObject()
 
 void MovingObject::setSpeed(qreal s)
 {
-    speed = s;
+    m_speed = s;
 }
 
 

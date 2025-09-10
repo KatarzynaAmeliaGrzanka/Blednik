@@ -66,27 +66,27 @@ private:
     /**
      * @brief map_width Szerokość mapy
      */
-    int map_width;
+    int m_map_width;
     /**
      * @brief map_height Wysokość mapy
      */
-    int map_height;
+    int m_map_height;
     /**
      * @brief road_width Szerokość drogi
      */
-    int road_width;
+    int m_road_width;
     /**
      * @brief Roads Wektor współrzędnuch dróg
      */
-    std::vector<QRectF> Roads;
+    std::vector<QRectF> m_Roads;
     /**
      * @brief horizontal_roads Wektor współrzędnuch dróg poziomych.
      */
-    std::vector<int> horizontal_roads;
+    std::vector<int> m_horizontal_roads;
     /**
      * @brief vertical_roads Wektor współrzędnuch dróg pionowych.
      */
-    std::vector<int> vertical_roads;
+    std::vector<int> m_vertical_roads;
 
 };
 

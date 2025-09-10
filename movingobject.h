@@ -25,22 +25,22 @@ public:
      * @brief getDefaultSpeed Metoda zwracająca domyślną prędkość przedmiotu.
      * @return
      */
-    qreal getDefaultSpeed() {return default_speed;}
+    qreal getDefaultSpeed() {return m_default_speed;}
     /**
      * @brief setDirection Metoda ustawiająca kierunek, w którym porusza się przedmiot.
      * @param d kierunek z klasy Direction.
      */
-    void setDirection(Direction::direction d) {direction = d;};
+    void setDirection(Direction::direction d) {m_direction = d;};
     /**
      * @brief getDirection Metoda zwracająca kierunek, w którym porusza się przedmiot.
      * @return
      */
-    Direction::direction getDirection() const {return direction; }
+    Direction::direction getDirection() const {return m_direction; }
     /**
      * @brief getSpeed Metoda zwracająca aktualną prędkość przedmiotu.
      * @return
      */
-    qreal getSpeed() const {return speed;}
+    qreal getSpeed() const {return m_speed;}
     /**
      * @brief move wirtualna metoda do implementacji ruchu przedmiotu.
      */
@@ -50,15 +50,15 @@ private:
     /**
      * @brief speed Zmiennoprzecinkowa wartość prędkości przedmiotu.
      */
-    qreal speed;
+    qreal m_speed;
     /**
      * @brief default_speed Zmiennoprzecinkowa wartość domyślnej prędkości przedmiotu.
      */
-    qreal default_speed = 3;
+    qreal m_default_speed = 3;
     /**
      * @brief direction kierunek poruszania się z klasy Direction.
      */
-    Direction::direction direction = Direction::RIGHT;
+    Direction::direction m_direction = Direction::RIGHT;
 };
 
 #endif // MOVINGOBJECT_H
